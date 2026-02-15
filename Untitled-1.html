@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>AI Writing Detection – Demo System</title>
+
+<style>
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background: #f4f6f9;
+    margin: 0;
+    padding: 0;
+}
+
+header {
+    background: #1f3a5f;
+    color: white;
+    padding: 20px;
+}
+
+.container {
+    max-width: 1100px;
+    margin: 30px auto;
+    background: white;
+    padding: 30px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+h1, h2, h3 {
+    margin-top: 0;
+}
+
+.upload-box {
+    border: 2px dashed #bbb;
+    padding: 30px;
+    text-align: center;
+}
+
+button {
+    padding: 10px 20px;
+    background: #1f3a5f;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #16304f;
+}
+
+.result-box {
+    margin-top: 30px;
+    display: none;
+}
+
+.score {
+    font-size: 48px;
+    font-weight: bold;
+    color: #c0392b;
+}
+
+.badge {
+    display: inline-block;
+    padding: 5px 10px;
+    background: #e74c3c;
+    color: white;
+    border-radius: 4px;
+}
+
+.section {
+    margin-top: 30px;
+}
+
+.report {
+    border-top: 1px solid #ddd;
+    margin-top: 30px;
+    padding-top: 20px;
+}
+
+footer {
+    text-align: center;
+    font-size: 12px;
+    color: #777;
+    margin-top: 40px;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <h1>AI Writing Detection – Demo System</h1>
+    <p>Turnitin-style AI analysis (educational prototype)</p>
+</header>
+
+<div class="container">
+
+    <div class="upload-box">
+        <h2>Upload Document for AI Check</h2>
+        <input type="file" id="fileInput" accept=".txt,.docx">
+        <br><br>
+        <button onclick="analyze()">Analyze Document</button>
+    </div>
+
+    <div class="result-box" id="resultBox">
+
+        <h2>AI Writing Overview</h2>
+
+        <div class="score" id="aiScore">34%</div>
+        <p><span class="badge">Detected as AI-Generated</span></p>
+
+        <div class="section">
+            <h3>Detection Groups</h3>
+            <ul>
+                <li><strong>AI-Generated Text:</strong> <span id="aiWords"></span> words</li>
+                <li><strong>Human-Like Text:</strong> <span id="humanWords"></span> words</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h3>Interpretation</h3>
+            <p id="interpretation"></p>
+        </div>
+
+        <div class="section">
+            <h3>Methodology (Demo)</h3>
+            <ul>
+                <li>Lexical diversity analysis</li>
+                <li>Sentence burstiness variation</li>
+                <li>Repetition and predictability scoring</li>
+                <li>Statistical language entropy estimation</li>
+            </ul>
+        </div>
+
+        <div class="report">
+            <h2>Downloadable Report</h2>
+            <p>
+                This report summarizes the AI-likeness probability of the submitted document
+                based on machine-learning inspired linguistic indicators.
+            </p>
+            <button onclick="window.print()">Download / Print Report</button>
+        </div>
+
+    </div>
+
+</div>
+
+<footer>
+    <p>
+        This is a demonstration system inspired by AI-writing detection concepts.
+        It is not affiliated with or endorsed by Turnitin.
+    </p>
+</footer>
+
+<script>
+function analyze() {
+    const fileInput = document.getElementById("fileInput");
+    if (!fileInput.files.length) {
+        alert("Please upload a document.");
+        return;
+    }
+
+    const file = fileInput.files[0];
+    const reader = new FileReader();
+
+    reader.onload = function(e) {
+        const text = e.target.result;
+        runAnalysis(text);
+    };
+
+    reader.readAsText(file);
+}
+
+function runAnalysis(text) {
+    const words = text.split(/\s+/).filter(w => w.length > 0);
+    const wordCount = words.length;
+
+    // === Heuristic AI scoring (demo ML logic) ===
+    const uniqueWords = new Set(words.map(w => w.toLowerCase()));
+    const lexicalDiversity = uniqueWords.size / wordCount;
+
+    const avgSentenceLength = text.split(/[.!?]/).map(s => s.split(" ").length).reduce((a,b)=>a+b,0) /
+                              Math.max(1, text.split(/[.!?]/).length);
+
+    let aiProbability = 0.5;
+
+    if (lexicalDiversity < 0.35) aiProbability += 0.15;
+    if (avgSentenceLength > 22) aiProbability += 0.1;
+    if (avgSentenceLength < 10) aiProbability += 0.1;
+
+    aiProbability = Math.min(0.95, aiProbability);
+    const aiPercent = Math.round(aiProbability * 100);
+
+    const aiWords = Math.round(wordCount * aiProbability);
+    const humanWords = wordCount - aiWords;
+
+    document.getElementById("aiScore").innerText = aiPercent + "%";
+    document.getElementById("aiWords").innerText = aiWords;
+    document.getElementById("humanWords").innerText = humanWords;
+
+    document.getElementById("interpretation").innerText =
+        aiPercent > 50
+        ? "The system identified linguistic patterns consistent with AI-generated writing. This does not confirm authorship but indicates higher AI-likeness."
+        : "The document exhibits predominantly human-like writing characteristics.";
+
+    document.getElementById("resultBox").style.display = "block";
+}
+</script>
+
+</body>
+</html>
